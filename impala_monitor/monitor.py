@@ -17,7 +17,7 @@ class ImpalaMonitor(object):
         self._stats = ImpalaStats(self._statsd)
 
     def run(self):
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=13) as executor:
             futures = {executor.submit(self.load_url, node, 30): node for
                        node in self._nodes}
 
@@ -38,13 +38,17 @@ class ImpalaMonitor(object):
         url = "{schema}{ip}/{path}".format(
             schema='http://',
             ip=node,
-            path='jsonmetrics'
+            #path='jsonmetrics'
+            path='metrics?json'
         )
 
         request = requests.get(url)
         if request.status_code == 200:
-            return json.loads(request.text)
+            print("debug-- Successtully parsed json")
+            result = request.text.replace("'","")
+            return json.loads(result)
 
+        print("debug-- Failed parse json")
         return False
 
     def parse_nodes(self, nodes):
