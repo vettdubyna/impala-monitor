@@ -12,6 +12,8 @@ class ElasticFactory(object):
     def __init__(self, host: str, port: str):
         self.port = port
         self.host = host
+        print("Elasticsearch host: " + self.host)
+        print("Elasticsearch port: " + str(self.port))
 
     def create(self) -> Elasticsearch:
         elasticsearch = Elasticsearch(
@@ -21,20 +23,20 @@ class ElasticFactory(object):
         mapping = {
             "query": {
                 "properties": {
-                    "query": {"type": "string"},
-                    "query_type": {"type": "string"},
-                    "state": {"type": "string"},
+                    "query": {"type": "text"},
+                    "query_type": {"type": "text"},
+                    "state": {"type": "text"},
                     "fetched_rows": {"type": "integer"},
-                    "user": {"type": "string"},
-                    "start_time": {"type": "string"},
-                    "end_time": {"type": "string"},
+                    "user": {"type": "text"},
+                    "start_time": {"type": "text"},
+                    "end_time": {"type": "text"},
                     "execution_time": {"type": "float"},
-                    "query_id": {"type": "string"},
+                    "query_id": {"type": "text"},
                     "timestamp": {"type": "date", "format": "epoch_second"},
                     "memory_allocated": {"type": "float"},
                     "vcores_allocated": {"type": "integer"},
-                    "exception_message": {"type": "string"},
-                    "exec_summary": {"type": "string"}
+                    "exception_message": {"type": "text"},
+                    "exec_summary": {"type": "text"}
                 }
             }
         }
@@ -68,7 +70,7 @@ class ImpalaLogger(object):
         :return:
         """
         queries = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=13) as executor:
             futures = {
                 executor.submit(self.query_retriever, node, 2): node for node
                 in
@@ -89,7 +91,7 @@ class ImpalaLogger(object):
                 except Exception as e:
                     print("Something went wrong {}".format(e))
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=13) as executor:
             futures = {
                 executor.submit(self.query_profiler, query, 2): query for
                 query in queries
@@ -123,10 +125,11 @@ class ImpalaLogger(object):
         request = requests.get(url, timeout=timeout)
         if request.status_code != 200:
             return False
-
+        
+        #print("--debug Request: " + str(request.text))
         parser = ImpalaQueryLogParser(request.text)
         queries = parser.queries
-
+        print("--debug Queries: " + str(queries))
         if not queries:
             return []
 

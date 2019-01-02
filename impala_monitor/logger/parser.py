@@ -27,7 +27,7 @@ class Query(object):
                 value = value.total_seconds()
 
             new_dict[key] = value
-
+        #print(new_dict)
         return new_dict
 
 
@@ -66,19 +66,17 @@ class ImpalaQueryLogParser(object):
         :return: dict
         """
         tables = self.soup.findAll('table')
-
+        #print(tables)
         # In our case we know it's the third table
         rows = tables[2].findAll('tr')
-
         queries = []
 
         for row in rows[1:len(rows)]:
             cells = row.findAll("td")
             query_type = cells[3].get_text()
-            query_state = cells[7].get_text()
-
-            if query_type not in ['QUERY'] or not query_state in ['FINISHED',
-                                                                  'EXCEPTION']:
+            query_state = cells[8].get_text()
+            #print("query type: " + query_type + "; Query state: " + query_state)
+            if query_type not in ['QUERY'] or not query_state in ['FINISHED', 'EXCEPTION']:
                 continue
 
             start_time = datetime.strptime(
@@ -92,14 +90,14 @@ class ImpalaQueryLogParser(object):
             execution_time = end_time - start_time
 
             query_id = self.extract_query_id(
-                cells[9].find('a', href=True).get('href')
+                cells[11].find('a', href=True).get('href')
             )
 
             queries.append(Query({
                 'query': cells[2].get_text(),
                 'query_type': query_type,
                 'state': query_state,
-                'fetched_rows': int(cells[8].get_text()),
+                'fetched_rows': int(cells[9].get_text()),
                 'user': cells[0].get_text(),
                 'start_time': start_time,
                 'end_time': end_time,
@@ -107,7 +105,18 @@ class ImpalaQueryLogParser(object):
                 'query_id': query_id,
                 'timestamp': int(start_time.timestamp()),
             }))
-
+            print("+++++++++++++++++++++++++++")
+            print('query: ' + cells[2].get_text()[0:10])
+            print('query_type: ' + query_type)
+            print('state: ' + query_state)
+            print('fetched_rows: ' + cells[9].get_text())
+            print('user: ' + cells[0].get_text())
+            print('start_time: ' + str(start_time))
+            print('end_time: ' + str(end_time))
+            print('execution_time: ' + str(execution_time))
+            print('query_id: ' + query_id)
+            print('timestamp: ' + str(start_time.timestamp()))
+            print("---------------------------\n")
         return queries
 
     def extract_profile(self, query: Query) -> Query:
