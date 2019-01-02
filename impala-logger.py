@@ -10,8 +10,7 @@ from impala_monitor.logger.logger import ImpalaLogger, ElasticFactory
 @click.option('--seconds', help='Every how many seconds should be executed',
               default=1)
 @click.option('--elastic-node', help='To which Elastic should send the data')
-@click.option('--elastic-port', help='To which Elastic port should '
-                                      'connect', default=9200)
+@click.option('--elastic-port', help='To which Elastic port should connect', default=9200)
 def monitor(nodes, seconds, elastic_node, elastic_port):
     elasticsearch = ElasticFactory(elastic_node, elastic_port).create()
 
