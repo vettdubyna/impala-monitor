@@ -44,7 +44,7 @@ class ImpalaMonitor(object):
 
         request = requests.get(url)
         if request.status_code == 200:
-            print("debug-- Successtully parsed json")
+            #print("debug-- Successtully parsed json")
             result = request.text.replace("'","")
             return json.loads(result)
 

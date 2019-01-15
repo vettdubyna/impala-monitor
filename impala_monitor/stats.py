@@ -1,4 +1,5 @@
 import re
+import datetime
 
 
 class ImpalaStats(object):
@@ -18,11 +19,12 @@ class ImpalaStats(object):
 
     def send(self, node, payload):
         #print(payload)
+        now = datetime.datetime.now()
         for pattern in self.ITEMS_TO_TRACK:
             for key in payload['metric_group']['metrics']:
                 #print("keyname = " + key["name"] + "\n")
                 if re.match(pattern, str(key['name'])):
-                    print("Regex matches " + key['name'] + "\tvalue: " + str(key['value']) + " node: " + node)
+                    #print(now.isoformat() + ": Regex matches " + key['name'] + "\tvalue: " + str(key['value']) + " node: " + node)
                     extended_key = "{}.{}".format(node.replace(':25000', '').replace('.', '_'), key["name"])
                     self._statsd.gauge(extended_key, int(key["value"]))
 
@@ -30,6 +32,6 @@ class ImpalaStats(object):
                 for key in item['metrics']:
                     #print("keyname = " + key["name"] + "\n")
                     if re.match(pattern, str(key['name'])):
-                        print("Regex matches #2 " + key["name"] + "\tvalue: " + str(key['value']) + " node: " + node)
+                        #print(now.isoformat() + ": Regex matches #2 " + key["name"] + "\tvalue: " + str(key['value']) + " node: " + node)
                         extended_key = "{}.{}".format(node.replace(':25000', '').replace('.', '_'), key["name"])
                         self._statsd.gauge(extended_key, int(key["value"]))

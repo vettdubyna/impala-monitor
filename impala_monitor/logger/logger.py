@@ -129,7 +129,7 @@ class ImpalaLogger(object):
         #print("--debug Request: " + str(request.text))
         parser = ImpalaQueryLogParser(request.text)
         queries = parser.queries
-        print("--debug Queries: " + str(queries))
+        #print("--debug Queries: " + str(queries))
         if not queries:
             return []
 

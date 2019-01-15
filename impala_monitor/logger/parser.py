@@ -34,9 +34,11 @@ class Query(object):
 class Converter(object):
     @staticmethod
     def convert(value: str, convert_to: str) -> int:
+        #print("++ Value = " + value)
+        #print("+++ Original unit = " + str(value[len(value)-2:len(value)]))
+        #print("++++ Original value = " + value[0:len(value)-2])
         original_unit = str(value[len(value)-2:len(value)])
         original_value = float(value[0:len(value)-2])
-
         if convert_to not in ['GB', 'MB', 'TB']:
             raise ValueError('Unit {} not valid'.format(original_unit))
 
@@ -105,18 +107,18 @@ class ImpalaQueryLogParser(object):
                 'query_id': query_id,
                 'timestamp': int(start_time.timestamp()),
             }))
-            print("+++++++++++++++++++++++++++")
-            print('query: ' + cells[2].get_text()[0:10])
-            print('query_type: ' + query_type)
-            print('state: ' + query_state)
-            print('fetched_rows: ' + cells[9].get_text())
-            print('user: ' + cells[0].get_text())
-            print('start_time: ' + str(start_time))
-            print('end_time: ' + str(end_time))
-            print('execution_time: ' + str(execution_time))
-            print('query_id: ' + query_id)
-            print('timestamp: ' + str(start_time.timestamp()))
-            print("---------------------------\n")
+            #print("+++++++++++++++++++++++++++")
+            #print('query: ' + cells[2].get_text()[0:10])
+            #print('query_type: ' + query_type)
+            #print('state: ' + query_state)
+            #print('fetched_rows: ' + cells[9].get_text())
+            #print('user: ' + cells[0].get_text())
+            #print('start_time: ' + str(start_time))
+            #print('end_time: ' + str(end_time))
+            #print('execution_time: ' + str(execution_time))
+            #print('query_id: ' + query_id)
+            #print('timestamp: ' + str(start_time.timestamp()))
+            #print("---------------------------\n")
         return queries
 
     def extract_profile(self, query: Query) -> Query:
