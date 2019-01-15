@@ -39,10 +39,10 @@ class Converter(object):
         #print("++++ Original value = " + value[0:len(value)-2])
         original_unit = str(value[len(value)-2:len(value)])
         original_value = float(value[0:len(value)-2])
-        if convert_to not in ['GB', 'MB', 'TB']:
+        if convert_to not in ['KB', 'GB', 'MB', 'TB']:
             raise ValueError('Unit {} not valid'.format(original_unit))
 
-        if original_unit not in ['GB', 'MB', 'TB']:
+        if original_unit not in ['KB', 'GB', 'MB', 'TB']:
             raise ValueError('Unit {} not valid'.format(original_unit))
 
         if original_unit == convert_to:
@@ -52,6 +52,10 @@ class Converter(object):
             return round(original_value * 1000)
         elif original_unit == 'MB' and convert_to == 'GB':
             return original_value / 1000
+        elif original_unit == 'KB' and convert_to == 'MB':
+            return original_value / 1000
+        elif original_unit == 'TB' and convert_to == 'MB':
+            return original_value / 1000000
 
 
 class ImpalaQueryLogParser(object):
@@ -124,12 +128,16 @@ class ImpalaQueryLogParser(object):
     def extract_profile(self, query: Query) -> Query:
         profile = self.soup.findAll('div', {'class': 'container'})[1].find(
             'pre').get_text()
+       
+        #print("---Profile: " + str(profile))
 
-        memory_allocated_matches = re.search('Memory=([0-9\.GBMB]+)', profile)
+        #memory_allocated_matches = re.search('Memory=([0-9\.GBMB]+)', profile)
+        memory_allocated_matches = re.search('- PerHostPeakMemUsage: ([0-9\. GBMBKB]+)', profile)
+        #print(str(memory_allocated_matches.group(1)))
 
         if memory_allocated_matches:
             query.memory_allocated = Converter.convert(
-                memory_allocated_matches.group(1), 'MB'
+                memory_allocated_matches.group(1).replace(" ", ""), 'MB'
             )
         else:
             query.memory_allocated = 0
