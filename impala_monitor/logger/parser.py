@@ -82,7 +82,7 @@ class ImpalaQueryLogParser(object):
             query_type = cells[3].get_text()
             query_state = cells[8].get_text()
             #print("query type: " + query_type + "; Query state: " + query_state)
-            if query_type not in ['QUERY'] or not query_state in ['FINISHED', 'EXCEPTION']:
+            if query_type not in ['QUERY','DDL','DML'] or not query_state in ['FINISHED', 'EXCEPTION']:
                 continue
 
             start_time = datetime.strptime(
@@ -129,12 +129,13 @@ class ImpalaQueryLogParser(object):
         profile = self.soup.findAll('div', {'class': 'container'})[1].find(
             'pre').get_text()
        
-        #print("---Profile: " + str(profile))
-
-        #memory_allocated_matches = re.search('Memory=([0-9\.GBMB]+)', profile)
+        #Retreiving true query type
+        query_type_profile = re.search('Query Type: ([QUERYDDLDML]+)', profile)
+        #aprint(query_type_profile.group(1))
+        query.query_type = query_type_profile.group(1)
+        
         memory_allocated_matches = re.search('- PerHostPeakMemUsage: ([0-9\. GBMBKB]+)', profile)
         #print(str(memory_allocated_matches.group(1)))
-
         if memory_allocated_matches:
             query.memory_allocated = Converter.convert(
                 memory_allocated_matches.group(1).replace(" ", ""), 'MB'
@@ -151,7 +152,7 @@ class ImpalaQueryLogParser(object):
 
         if query.state == 'EXCEPTION':
             exception_message_matches = re.search(
-                'Query Status: ([a-zA-Z \:\/_\-0-9\.]+)', profile
+                "Query Status: ([a-zA-Z \:\/_\-0-9\.]+)", profile
             )
 
             if exception_message_matches:
